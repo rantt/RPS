@@ -38,6 +38,7 @@ Game.Load.prototype = {
   	loadingText.anchor.setTo(0.5, 0.5);
   	var preloading = this.game.add.sprite(Game.w/2-64, Game.h/2+50, 'loading');
   	this.game.load.setPreloadSprite(preloading);
+    this.game.load.spritesheet('rps','assets/images/RPS.png',60,60,12);
 
     // Music Track
     // this.game.load.audio('music','soundtrack.mp3');
