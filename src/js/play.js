@@ -27,7 +27,14 @@ Game.Play.prototype = {
 		this.game.stage.backgroundColor = '#000';
     this.game.world.setBounds(0, 0 ,Game.w ,Game.h);
 
-    this.actionbar = this.game.add.group();
+
+    //Map
+    this.map = this.game.add.tilemap('bridge');
+    this.map.addTilesetImage('town');
+    this.layer1 = this.map.createLayer('layer1');
+    this.layer1.resizeWorld();
+
+    //Buttons
     this.rock = this.game.add.button(Game.w/2-64,Game.h-150,'rps',this.actionOnClick, this, 3,0,6,3);
     this.rock.name = 'rock';
 
@@ -38,8 +45,14 @@ Game.Play.prototype = {
     this.scissors.name = 'scissors';
 
     this.choices = ['rock', 'paper', 'scissors'];
+
     this.playerChoice = '';
     this.computerChoice = '';
+
+    this.player = this.game.add.sprite(64, 180, 'player');
+
+    this.lock = this.game.add.sprite(32, 64, 'lock');
+    this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
 
     // // Music
     // this.music = this.game.add.sound('music');
@@ -77,6 +90,19 @@ Game.Play.prototype = {
       this.computerChoice = this.choices[rand(0,2)];      
     }
 
+    switch(this.playerChoice) {
+      case 'rock':
+        this.player.frame = 1;
+        break;
+      case 'paper':
+        this.player.frame = 2;
+        break;
+      case 'scissors':
+        this.player.frame = 3;
+        break;
+    }
+
+
     if (this.computerChoice && this.playerChoice) {
       if (this.playerChoice === this.computerChoice) {
         console.log("YOU TIE!");
@@ -92,7 +118,6 @@ Game.Play.prototype = {
       this.computerChoice = '';
       this.playerChoice = '';
     }
-   
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
