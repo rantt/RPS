@@ -50,6 +50,7 @@ Game.Play.prototype = {
     this.computerChoice = '';
 
     this.player = this.game.add.sprite(64, 180, 'player');
+    this.player.animations.add('idle',[0,1],3,true);
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
@@ -92,14 +93,17 @@ Game.Play.prototype = {
 
     switch(this.playerChoice) {
       case 'rock':
-        this.player.frame = 1;
-        break;
-      case 'paper':
         this.player.frame = 2;
         break;
-      case 'scissors':
+      case 'paper':
         this.player.frame = 3;
         break;
+      case 'scissors':
+        this.player.frame = 4;
+        break;
+      default:
+        this.player.animations.play('idle');
+
     }
 
 
