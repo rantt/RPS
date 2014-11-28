@@ -54,8 +54,10 @@ Game.Play.prototype = {
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
-    this.countDownText = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 80);
+    this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 80);
+
     this.countDownInt = 3;
+
 
     // // Music
     // this.music = this.game.add.sound('music');
@@ -75,25 +77,40 @@ Game.Play.prototype = {
       case 'rock':
         console.log('you picked rock');
         this.playerChoice = 'rock';
+        this.ready = true;
         break;
       case 'paper':
         console.log('you picked paper');
         this.playerChoice = 'paper';
+        this.ready = true;
         break;
       case 'scissors':
         console.log('you picked scissors');
         this.playerChoice = 'scissors';
+        this.ready = true;
         break;
     }
 
   },
 
   update: function() {
+
+    //Get Ready
+    //CountDown
+    //Compare Computer/Player
+    //Display Result
+    //Play Again
+
+    if (this.playerChoice === '') {
+      this.getReady();
+    }
+
+    if (this.ready === true) {
+
     if (this.computerChoice === '') {
       this.computerChoice = this.choices[rand(0,2)];      
     }
-
-    switch(this.playerChoice) {
+     switch(this.playerChoice) {
       case 'rock':
         this.player.frame = 2;
         break;
@@ -105,10 +122,8 @@ Game.Play.prototype = {
         break;
       default:
         this.player.animations.play('idle');
-
     }
 
-    if (this.computerChoice && this.playerChoice) {
       if (this.playerChoice === this.computerChoice) {
         console.log("YOU TIE!");
       }else if (
@@ -119,24 +134,72 @@ Game.Play.prototype = {
       }else {
         console.log("YOU LOSE!"+this.computerChoice+' beats '+this.playerChoice);
       }
-
       this.computerChoice = '';
       this.playerChoice = '';
-    }else{
-      //Spawn Enemy
-      //3-2-1-Select
-      //Settle Loser/Winner
-      //Reset Choices
-      //Respawn Player or Enemy
-      this.countDown();
+    this.game.time.events.add(Phaser.Timer.SECOND,function() {
+      this.player.animations.play('idle');
+    }, this);
+
+     
     }
+
+
+    // if (this.computerChoice === '') {
+    //   this.computerChoice = this.choices[rand(0,2)];      
+    // }
+    //
+    // switch(this.playerChoice) {
+    //   case 'rock':
+    //     this.player.frame = 2;
+    //     break;
+    //   case 'paper':
+    //     this.player.frame = 3;
+    //     break;
+    //   case 'scissors':
+    //     this.player.frame = 4;
+    //     break;
+    //   default:
+    //     this.player.animations.play('idle');
+    // }
+    //
+    // if (this.computerChoice && this.playerChoice) {
+    //   if (this.playerChoice === this.computerChoice) {
+    //     console.log("YOU TIE!");
+    //   }else if (
+    //             ((this.playerChoice === 'paper') && (this.computerChoice === 'rock')) || 
+    //             ((this.playerChoice === 'rock') && (this.computerChoice === 'scissors')) || 
+    //             ((this.playerChoice === 'scissors') && (this.computerChoice === 'paper'))) {
+    //     console.log("YOU WIN! "+this.playerChoice+' beats '+this.computerChoice);
+    //   }else {
+    //     console.log("YOU LOSE!"+this.computerChoice+' beats '+this.playerChoice);
+    //   }
+    //
+    //   this.computerChoice = '';
+    //   this.playerChoice = '';
+    // }else{
+    //   //Spawn Enemy
+    //   //3-2-1-Select
+    //   //Settle Loser/Winner
+    //   //Reset Choices
+    //   //Respawn Player or Enemy
+    //   // this.countDown();
+    //   this.getReady();
+    // }
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
 
   },
-  countDown: function() {
-    this.game.time.events.add(Phaser.Timer.SECOND,this.tweenNumber, this);
+  getReady: function() {
+    if (this.ready == false) {
+      return;
+    }
+    this.ready = false;
+    this.messages.text = 'Choose!';
+
+    this.game.time.events.add(Phaser.Timer.SECOND,function() {
+      this.tweenNumber();
+    }, this);
 
   },
   tweenNumber: function() {
@@ -144,17 +207,18 @@ Game.Play.prototype = {
       return;
     }
     this.tweening = true;
-    console.log('i here',this.countDownInt);
-    this.countDownText.text = this.countDownInt;
-    var t = this.game.add.tween(this.countDownText).to({fontSize: 0},1000);
+    this.messages.text = this.countDownInt;
+    var t = this.game.add.tween(this.messages).to({fontSize: 0},1000);
     t.start();
     t.onComplete.add(function() {
-      this.countDownText.fontSize = 80;
+      this.messages.fontSize = 80;
       this.tweening = false;
       if (this.countDownInt > 0) {
         this.countDownInt -= 1;
+        this.tweenNumber();
       }else{
         this.countDownInt = 3;
+        this.messages.text = '';
       }
     },this);
   },    
