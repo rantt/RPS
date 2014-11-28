@@ -54,6 +54,8 @@ Game.Play.prototype = {
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
+    this.countDownText = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 80);
+    this.countDownInt = 3;
 
     // // Music
     // this.music = this.game.add.sound('music');
@@ -106,7 +108,6 @@ Game.Play.prototype = {
 
     }
 
-
     if (this.computerChoice && this.playerChoice) {
       if (this.playerChoice === this.computerChoice) {
         console.log("YOU TIE!");
@@ -121,12 +122,42 @@ Game.Play.prototype = {
 
       this.computerChoice = '';
       this.playerChoice = '';
+    }else{
+      //Spawn Enemy
+      //3-2-1-Select
+      //Settle Loser/Winner
+      //Reset Choices
+      //Respawn Player or Enemy
+      this.countDown();
     }
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
 
   },
+  countDown: function() {
+    this.game.time.events.add(Phaser.Timer.SECOND,this.tweenNumber, this);
+
+  },
+  tweenNumber: function() {
+    if (this.tweening) {
+      return;
+    }
+    this.tweening = true;
+    console.log('i here',this.countDownInt);
+    this.countDownText.text = this.countDownInt;
+    var t = this.game.add.tween(this.countDownText).to({fontSize: 0},1000);
+    t.start();
+    t.onComplete.add(function() {
+      this.countDownText.fontSize = 80;
+      this.tweening = false;
+      if (this.countDownInt > 0) {
+        this.countDownInt -= 1;
+      }else{
+        this.countDownInt = 3;
+      }
+    },this);
+  },    
   // toggleMute: function() {
   //   if (musicOn == true) {
   //     musicOn = false;
