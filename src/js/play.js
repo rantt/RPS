@@ -35,36 +35,42 @@ Game.Play.prototype = {
     this.layer1.resizeWorld();
 
     //Buttons
-    this.rock = this.game.add.button(Game.w/2-64,Game.h-150,'rps',this.actionOnClick, this, 3,0,6,3);
+    buttonHeight = Game.h/2+64;
+    this.rock = this.game.add.button(Game.w/2-64,buttonHeight,'rps',this.actionOnClick, this, 3,0,6,3);
     this.rock.name = 'rock';
 
-    this.paper = this.game.add.button(Game.w/2,Game.h-150,'rps',this.actionOnClick, this, 4,1,7,4);
+    this.paper = this.game.add.button(Game.w/2,buttonHeight,'rps',this.actionOnClick, this, 4,1,7,4);
     this.paper.name = 'paper';
 
-    this.scissors = this.game.add.button(Game.w/2+64,Game.h-150,'rps',this.actionOnClick, this, 5,2,8,5);
+    this.scissors = this.game.add.button(Game.w/2+64,buttonHeight,'rps',this.actionOnClick, this, 5,2,8,5);
     this.scissors.name = 'scissors';
 
     this.choices = ['rock', 'paper', 'scissors'];
 
-    this.playerChoice = '';
-    this.computerChoice = '';
-
     this.player = this.game.add.sprite(64, 180, 'player');
     this.player.animations.add('idle',[0,1],3,true);
+    this.player.choice = '';
+    this.player.winCount = 0;
+    this.player.lossCount = 0;
+    this.player.tieCount = 0;
 
     this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
     this.enemy.animations.add('idle',[0,1],3,true);
+    this.enemy.choice = '';
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
+    this.lock.animations.add('unlock',[2,3],2);
     this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
+
     this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 40);
     this.messages.align = 'center';
     this.messages.x = this.game.width/2 - this.messages.textWidth / 2;
 
+    this.winText = this.game.add.bitmapText(32, 428, 'minecraftia', '', 20);
+    this.lossText = this.game.add.bitmapText(32, 460, 'minecraftia', '', 20);
+    this.tieText = this.game.add.bitmapText(32, 492, 'minecraftia', '', 20);
 
-    this.countDownInt = 3;
-    this.ready = true;
-
+    this.cLvl = 0;
 
     // // Music
     // this.music = this.game.add.sound('music');
@@ -83,82 +89,90 @@ Game.Play.prototype = {
     switch (btn.name) {
       case 'rock':
         console.log('you picked rock');
-        this.playerChoice = 'rock';
+        this.player.choice = 'rock'
+        // this.playerChoice = 'rock';
         break;
       case 'paper':
         console.log('you picked paper');
-        this.playerChoice = 'paper';
+        this.player.choice = 'paper';
+        // this.playerChoice = 'paper';
         break;
       case 'scissors':
         console.log('you picked scissors');
-        this.playerChoice = 'scissors';
+        this.player.choice = 'scissors';
+        // this.playerChoice = 'scissors';
         break;
     }
 
   },
-  pickYourWeapon: function() {
-     switch(this.playerChoice) {
+  pickYourWeapon: function(combatant) {
+     switch(combatant.choice) {
       case 'rock':
-        this.player.frame = 2;
+        combatant.frame = 2;
         break;
       case 'paper':
-        this.player.frame = 3;
+        combatant.frame = 3;
         break;
       case 'scissors':
-        this.player.frame = 4;
+        combatant.frame = 4;
         break;
     }
    
-  },  
+  },
+  updateChallenge: function() {
+    // if (this.lock.alive === false) {
+    //   this.lock.reset(34,64);
+    //   this.lock.frame = 0;
+    // }
+    if (this.player.winCount === 3) {
+      this.cLvl = 1;
+      this.challengeText.text = 'Win 10 Times';
+      // this.lock.animations.play('unlock',2,false, true);
+
+    }else if (this.player.winCount === 10) {
+      this.challengeText.text = 'I don\'t know';
+      this.cLvl = 2;
+    }
+  },
   update: function() {
 
-    //Get Ready
-    //CountDown
-    //Compare Computer/Player
-    //Display Result
-    //Play Again
+    this.updateChallenge();
 
-    this.pickYourWeapon();
+    this.pickYourWeapon(this.player);
 
-    if (this.playerChoice) {
-      this.computerChoice = this.choices[rand(0,2)];      
-      switch(this.computerChoice) {
-        case 'rock':
-          this.enemy.frame = 2;
-          break;
-        case 'paper':
-          this.enemy.frame = 3;
-          break;
-        case 'scissors':
-          this.enemy.frame = 4;
-          break;
-      }
+    if (this.cLvl > 0) {
+      this.winText.text = 'Wins: '+this.player.winCount;
+      this.lossText.text = 'Losses: '+this.player.lossCount;
+      this.tieText.text = 'Ties: '+this.player.tieCount;
+    }
+
+
+
+    if (this.player.choice) {
+      this.enemy.choice = this.choices[rand(0,2)];      
+      this.pickYourWeapon(this.enemy);
 
       this.messages.fontSize = 40;
       this.messages.x = Game.w/2-64;
 
-      if (this.playerChoice === this.computerChoice) {
+      if (this.player.choice === this.enemy.choice) {
         this.messages.text = "YOU TIE!";
         console.log("YOU TIE!");
+        this.player.tieCount += 1;
       }else if (
-                ((this.playerChoice === 'paper') && (this.computerChoice === 'rock')) || 
-                ((this.playerChoice === 'rock') && (this.computerChoice === 'scissors')) || 
-                ((this.playerChoice === 'scissors') && (this.computerChoice === 'paper'))) {
+                ((this.player.choice === 'paper') && (this.enemy.choice === 'rock')) || 
+                ((this.player.choice === 'rock') && (this.enemy.choice === 'scissors')) || 
+                ((this.player.choice === 'scissors') && (this.enemy.choice === 'paper'))) {
         this.messages.text = "YOU WIN!";
-        console.log("YOU WIN! "+this.playerChoice+' beats '+this.computerChoice);
+        console.log("YOU WIN! "+this.player.choice+' beats '+this.enemy.choice);
+        this.player.winCount += 1;
       }else {
         this.messages.text = "YOU LOSE!";
-        console.log("YOU LOSE!"+this.computerChoice+' beats '+this.playerChoice);
+        console.log("YOU LOSE!"+this.enemy.choice+' beats '+this.player.choice);
+        this.player.lossCount += 1;
       }
-      this.computerChoice = '';
-      this.playerChoice = '';
-    }else{
-      if (this.ready) {
-        this.getReady();
-      }else {
-        // this.enemy.animations.play('idle');
-        // this.player.animations.play('idle');
-      }
+      this.enemy.choice = '';
+      this.player.choice = '';
     }
 
     // // Toggle Music
