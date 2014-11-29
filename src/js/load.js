@@ -46,6 +46,7 @@ Game.Load.prototype = {
   	this.game.load.setPreloadSprite(preloading);
     this.game.load.spritesheet('rps','assets/images/RPS.png',60,60,12);
     this.game.load.spritesheet('player','assets/images/RPS_player.png',66,66,9);
+    this.game.load.spritesheet('enemy','assets/images/RPS_enemy.png',66,66,9);
     this.game.load.spritesheet('lock', 'assets/images/RPS_lock.png',32,32,6);
 
     this.game.load.tilemap('bridge','assets/maps/bridge.json',null,Phaser.Tilemap.TILED_JSON);

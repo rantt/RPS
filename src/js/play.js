@@ -52,11 +52,18 @@ Game.Play.prototype = {
     this.player = this.game.add.sprite(64, 180, 'player');
     this.player.animations.add('idle',[0,1],3,true);
 
+    this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
+    this.enemy.animations.add('idle',[0,1],3,true);
+
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
-    this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 80);
+    this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 40);
+    this.messages.align = 'center';
+    this.messages.x = this.game.width/2 - this.messages.textWidth / 2;
+
 
     this.countDownInt = 3;
+    this.ready = true;
 
 
     // // Music
@@ -77,39 +84,19 @@ Game.Play.prototype = {
       case 'rock':
         console.log('you picked rock');
         this.playerChoice = 'rock';
-        this.ready = true;
         break;
       case 'paper':
         console.log('you picked paper');
         this.playerChoice = 'paper';
-        this.ready = true;
         break;
       case 'scissors':
         console.log('you picked scissors');
         this.playerChoice = 'scissors';
-        this.ready = true;
         break;
     }
 
   },
-
-  update: function() {
-
-    //Get Ready
-    //CountDown
-    //Compare Computer/Player
-    //Display Result
-    //Play Again
-
-    if (this.playerChoice === '') {
-      this.getReady();
-    }
-
-    if (this.ready === true) {
-
-    if (this.computerChoice === '') {
-      this.computerChoice = this.choices[rand(0,2)];      
-    }
+  pickYourWeapon: function() {
      switch(this.playerChoice) {
       case 'rock':
         this.player.frame = 2;
@@ -120,71 +107,59 @@ Game.Play.prototype = {
       case 'scissors':
         this.player.frame = 4;
         break;
-      default:
-        this.player.animations.play('idle');
     }
+   
+  },  
+  update: function() {
+
+    //Get Ready
+    //CountDown
+    //Compare Computer/Player
+    //Display Result
+    //Play Again
+
+    this.pickYourWeapon();
+
+    if (this.playerChoice) {
+      this.computerChoice = this.choices[rand(0,2)];      
+      switch(this.computerChoice) {
+        case 'rock':
+          this.enemy.frame = 2;
+          break;
+        case 'paper':
+          this.enemy.frame = 3;
+          break;
+        case 'scissors':
+          this.enemy.frame = 4;
+          break;
+      }
+
+      this.messages.fontSize = 40;
+      this.messages.x = Game.w/2-64;
 
       if (this.playerChoice === this.computerChoice) {
+        this.messages.text = "YOU TIE!";
         console.log("YOU TIE!");
       }else if (
                 ((this.playerChoice === 'paper') && (this.computerChoice === 'rock')) || 
                 ((this.playerChoice === 'rock') && (this.computerChoice === 'scissors')) || 
                 ((this.playerChoice === 'scissors') && (this.computerChoice === 'paper'))) {
+        this.messages.text = "YOU WIN!";
         console.log("YOU WIN! "+this.playerChoice+' beats '+this.computerChoice);
       }else {
+        this.messages.text = "YOU LOSE!";
         console.log("YOU LOSE!"+this.computerChoice+' beats '+this.playerChoice);
       }
       this.computerChoice = '';
       this.playerChoice = '';
-    this.game.time.events.add(Phaser.Timer.SECOND,function() {
-      this.player.animations.play('idle');
-    }, this);
-
-     
+    }else{
+      if (this.ready) {
+        this.getReady();
+      }else {
+        // this.enemy.animations.play('idle');
+        // this.player.animations.play('idle');
+      }
     }
-
-
-    // if (this.computerChoice === '') {
-    //   this.computerChoice = this.choices[rand(0,2)];      
-    // }
-    //
-    // switch(this.playerChoice) {
-    //   case 'rock':
-    //     this.player.frame = 2;
-    //     break;
-    //   case 'paper':
-    //     this.player.frame = 3;
-    //     break;
-    //   case 'scissors':
-    //     this.player.frame = 4;
-    //     break;
-    //   default:
-    //     this.player.animations.play('idle');
-    // }
-    //
-    // if (this.computerChoice && this.playerChoice) {
-    //   if (this.playerChoice === this.computerChoice) {
-    //     console.log("YOU TIE!");
-    //   }else if (
-    //             ((this.playerChoice === 'paper') && (this.computerChoice === 'rock')) || 
-    //             ((this.playerChoice === 'rock') && (this.computerChoice === 'scissors')) || 
-    //             ((this.playerChoice === 'scissors') && (this.computerChoice === 'paper'))) {
-    //     console.log("YOU WIN! "+this.playerChoice+' beats '+this.computerChoice);
-    //   }else {
-    //     console.log("YOU LOSE!"+this.computerChoice+' beats '+this.playerChoice);
-    //   }
-    //
-    //   this.computerChoice = '';
-    //   this.playerChoice = '';
-    // }else{
-    //   //Spawn Enemy
-    //   //3-2-1-Select
-    //   //Settle Loser/Winner
-    //   //Reset Choices
-    //   //Respawn Player or Enemy
-    //   // this.countDown();
-    //   this.getReady();
-    // }
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
@@ -213,7 +188,7 @@ Game.Play.prototype = {
     t.onComplete.add(function() {
       this.messages.fontSize = 80;
       this.tweening = false;
-      if (this.countDownInt > 0) {
+      if (this.countDownInt > 1) {
         this.countDownInt -= 1;
         this.tweenNumber();
       }else{
