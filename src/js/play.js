@@ -53,10 +53,16 @@ Game.Play.prototype = {
     this.player.winCount = 0;
     this.player.lossCount = 0;
     this.player.tieCount = 0;
+    this.player.rockCount = 0;
+    this.player.paperCount = 0;
+    this.player.scissorsCount = 0;
 
     this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
     this.enemy.animations.add('idle',[0,1],3,true);
     this.enemy.choice = '';
+    this.enemy.rockCount = 0;
+    this.enemy.paperCount = 0;
+    this.enemy.scissorsCount = 0;
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.lock.animations.add('unlock',[2,3],2);
@@ -66,9 +72,13 @@ Game.Play.prototype = {
     this.messages.align = 'center';
     this.messages.x = this.game.width/2 - this.messages.textWidth / 2;
 
-    this.winText = this.game.add.bitmapText(32, 428, 'minecraftia', '', 20);
-    this.lossText = this.game.add.bitmapText(32, 460, 'minecraftia', '', 20);
-    this.tieText = this.game.add.bitmapText(32, 492, 'minecraftia', '', 20);
+    this.winText = this.game.add.bitmapText(32, 408, 'minecraftia', '', 20);
+    this.lossText = this.game.add.bitmapText(32, 440, 'minecraftia', '', 20);
+    this.tieText = this.game.add.bitmapText(32, 472, 'minecraftia', '', 20);
+    this.rockText = this.game.add.bitmapText(32, 504, 'minecraftia', '', 20);
+    this.paperText = this.game.add.bitmapText(32, 536, 'minecraftia', '', 20);
+    this.scissorsText = this.game.add.bitmapText(32, 568, 'minecraftia', '', 20);
+
 
     this.cLvl = 0;
 
@@ -109,12 +119,15 @@ Game.Play.prototype = {
      switch(combatant.choice) {
       case 'rock':
         combatant.frame = 2;
+        combatant.rockCount += 1;
         break;
       case 'paper':
         combatant.frame = 3;
+        combatant.paperCount += 1;
         break;
       case 'scissors':
         combatant.frame = 4;
+        combatant.scissorsCount += 1;
         break;
     }
    
@@ -144,8 +157,64 @@ Game.Play.prototype = {
       this.winText.text = 'Wins: '+this.player.winCount;
       this.lossText.text = 'Losses: '+this.player.lossCount;
       this.tieText.text = 'Ties: '+this.player.tieCount;
-    }
+      this.rockText.text = 'Rock #'+this.player.rockCount;
+      this.paperText.text = 'Paper #'+this.player.paperCount;
+      this.scissorsText.text = 'Scissors #'+this.player.scissorsCount;
 
+      var rockMedals = this.player.rockCount;
+      for (i = 0; i < 10; i++) {
+        if ((rockMedals - 3) > 0) {
+          rockMedals -= 3;
+          this.game.add.sprite(325+(i*32),450,'medals',9);
+        }else if((rockMedals - 2) > 0) {
+          rockMedals -= 2;
+          this.game.add.sprite(325+(i*32),450,'medals',6);
+        }else if((rockMedals - 1) > 0) {
+          rockMedals -= 1;
+          this.game.add.sprite(325+(i*32),450,'medals',3);
+        }else {
+          this.game.add.sprite(325+(i*32),450,'medals',0);
+        }
+      }
+
+      var paperMedals = this.player.paperCount;
+      for (i = 0; i < 10; i++) {
+        if ((paperMedals - 3) > 0) {
+          paperMedals -= 3;
+          this.game.add.sprite(325+(i*32),490,'medals',10);
+        }else if((paperMedals - 2) > 0) {
+          paperMedals -= 2;
+          this.game.add.sprite(325+(i*32),490,'medals',7);
+        }else if((paperMedals - 1) > 0) {
+          paperMedals -= 1;
+          this.game.add.sprite(325+(i*32),490,'medals',4);
+        }else {
+          this.game.add.sprite(325+(i*32),490,'medals',1);
+        }
+      }
+
+      var scissorsMedals = this.player.scissorsCount;
+      for (i = 0; i < 10; i++) {
+        if ((scissorsMedals - 3) > 0) {
+          scissorsMedals -= 3;
+          this.game.add.sprite(325+(i*32),530,'medals',11);
+        }else if((scissorsMedals - 2) > 0) {
+          scissorsMedals -= 2;
+          this.game.add.sprite(325+(i*32),530,'medals',8);
+        }else if((scissorsMedals - 1) > 0) {
+          scissorsMedals -= 1;
+          this.game.add.sprite(325+(i*32),530,'medals',5);
+        }else {
+          this.game.add.sprite(325+(i*32),530,'medals',2);
+        }
+      }
+
+
+      // for (i = 0; i < this.player.rockCount; i++) {
+      //   this.game.add.sprite(325+(i*32),450,'medals',0);
+      // }
+
+    }
 
 
     if (this.player.choice) {
