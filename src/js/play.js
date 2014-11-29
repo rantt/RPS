@@ -66,7 +66,7 @@ Game.Play.prototype = {
 
     this.lock = this.game.add.sprite(32, 64, 'lock');
     this.lock.animations.add('unlock',[2,3],2);
-    this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 in a row', 20);
+    this.challengeText = this.game.add.bitmapText(85, 74, 'minecraftia', 'Win 3 Times!', 20);
 
     this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 40);
     this.messages.align = 'center';
@@ -143,7 +143,7 @@ Game.Play.prototype = {
       // this.lock.animations.play('unlock',2,false, true);
 
     }else if (this.player.winCount === 10) {
-      this.challengeText.text = 'I don\'t know';
+      this.challengeText.text = 'Tie 10 Times';
       this.cLvl = 2;
     }
   },
@@ -161,6 +161,13 @@ Game.Play.prototype = {
       this.paperText.text = 'Paper #'+this.player.paperCount;
       this.scissorsText.text = 'Scissors #'+this.player.scissorsCount;
 
+
+      // for (i = 0; i < this.player.rockCount; i++) {
+      //   this.game.add.sprite(325+(i*32),450,'medals',0);
+      // }
+
+    }
+    if (this.cLvl > 1) {
       var rockMedals = this.player.rockCount;
       for (i = 0; i < 10; i++) {
         if ((rockMedals - 3) > 0) {
@@ -210,16 +217,14 @@ Game.Play.prototype = {
       }
 
 
-      // for (i = 0; i < this.player.rockCount; i++) {
-      //   this.game.add.sprite(325+(i*32),450,'medals',0);
-      // }
-
     }
-
 
     if (this.player.choice) {
       this.enemy.choice = this.choices[rand(0,2)];      
       this.pickYourWeapon(this.enemy);
+
+      this.player.animations.stop();
+      this.enemy.animations.stop();
 
       this.messages.fontSize = 40;
       this.messages.x = Game.w/2-64;
@@ -242,6 +247,16 @@ Game.Play.prototype = {
       }
       this.enemy.choice = '';
       this.player.choice = '';
+      this.delayTimer = this.game.time.now + 2000;
+
+    }else {
+      if ((this.delayTimer - this.game.time.now) > 0) {
+        this.player.animations.stop();
+        this.enemy.animations.stop();
+      }else {
+        this.player.animations.play('idle');
+        this.enemy.animations.play('idle');
+      }
     }
 
     // // Toggle Music
