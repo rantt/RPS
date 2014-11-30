@@ -17,7 +17,6 @@ Game.Boot = function(game) {
 
 Game.Boot.prototype = {
   preload: function() {
-    // console.log('blah'+Game.w);
 		this.game.stage.backgroundColor = '#FFF';
 		this.game.load.image('loading', 'assets/images/loading.png');
 		this.game.load.image('title', 'assets/images/title.png');
@@ -49,6 +48,8 @@ Game.Load.prototype = {
     this.game.load.spritesheet('enemy','assets/images/RPS_enemy.png',66,66,9);
     this.game.load.spritesheet('lock', 'assets/images/RPS_lock.png',32,32,6);
     this.game.load.spritesheet('medals', 'assets/images/RPS_medals.png',30,30,12);
+
+    this.game.load.image('bar','assets/images/bar.png');
 
     this.game.load.tilemap('bridge','assets/maps/bridge.json',null,Phaser.Tilemap.TILED_JSON);
     this.game.load.spritesheet('town','assets/images/town.png',64,64,36);
