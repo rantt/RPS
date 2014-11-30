@@ -84,20 +84,19 @@ Game.Play.prototype = {
     this.cLvl = 0;
 
     this.playerHealthText = this.game.add.bitmapText(10, 64,'minecraftia','',20);
-    // this.playerHealthText = this.game.add.bitmapText(10, 64,'minecraftia','life:',20);
-    this.playerHealthBar = this.game.add.sprite(64, 64, this.drawRect(260,20,'#33ff00'));
+    this.playerHealthBar = this.game.add.sprite(100, 64, this.drawRect(260,20,'#33ff00'));
     this.playerHealthBar.scale.x = 0;
 
-    this.enemyHealthText = this.game.add.bitmapText(420, 64,'minecraftia','',20);
-    // this.enemyHealthText = this.game.add.bitmapText(420, 64,'minecraftia','life:',20);
-    this.enemyHealthBar = this.game.add.sprite(470, 64, this.drawRect(260,20,'#33ff00'));
+    this.enemyHealthText = this.game.add.bitmapText(410, 64,'minecraftia','',20);
+    this.enemyHealthBar = this.game.add.sprite(495, 64, this.drawRect(260,20,'#33ff00'));
     this.enemyHealthBar.scale.x = 0;
 
     this.expBar = this.game.add.sprite(0,108,this.drawRect(Game.w,20,'#ffff00'));
     this.expBar.scale.x = 0;
     this.playerExpText = this.game.add.bitmapText(0,108,'minecraftia','',20);
-    // this.playerExpText.text = "EXP: "+this.player.exp +"/"+(this.player.level*100); 
 
+    this.playerLvlText = this.game.add.bitmapText(10,36,'minecraftia','',20);
+    
     // // Music
     // this.music = this.game.add.sound('music');
     // this.music.volume = 0.5;
@@ -164,18 +163,18 @@ Game.Play.prototype = {
     //   this.lock.reset(34,64);
     //   this.lock.frame = 0;
     // }
-    if (this.player.winCount === 3) {
+    if ((this.player.winCount > 2) && (this.cLvl < 1)) {
       this.cLvl = 1;
       this.challengeText.text = 'Win 10 Times';
       // this.lock.animations.play('unlock',2,false, true);
 
-    }else if (this.player.winCount === 10) {
+    }else if ((this.player.winCount > 9) && (this.cLvl < 2)) {
       this.challengeText.text = 'All Gold Medals for rock, paper OR scissors';
       this.cLvl = 2;
-    }else if (((this.player.rockCount >= 30) || (this.player.paperCount >= 30) || (this.player.scissorsCount >= 30)) && (this.cLvl < 3)){
-      this.challengeText.text = 'Level 2';
+    }else if (((this.player.rockCount > 30) || (this.player.paperCount > 30) || (this.player.scissorsCount > 30)) && (this.cLvl < 3)){
+      this.challengeText.text = 'Level 5';
       this.cLvl = 3;
-    }else if (this.player.level === 2) {
+    }else if ((this.player.level > 4) && (this.cLvl < 4)) {
       this.challengeText.text = '10 Kills';
       this.cLvl = 4;
     }
@@ -186,7 +185,6 @@ Game.Play.prototype = {
     this.updateChallenge();
 
     this.pickYourWeapon(this.player);
-    console.log('lvl',this.player.level);
 
     if (this.cLvl > 0) {
       this.winText.text = 'Wins: '+this.player.winCount;
@@ -249,11 +247,12 @@ Game.Play.prototype = {
     if (this.cLvl > 2) {
       this.expBar.scale.x = (this.player.exp/(this.player.level*100));
       this.playerExpText.text = "EXP: "+this.player.exp +"/"+(this.player.level*100); 
+      this.playerLvlText.text = 'Lvl: '+this.player.level;
     }
 
     if (this.cLvl > 3) {
-      this.playerHealthText.text = 'life:';
-      this.enemyHealthText.text = 'life:';
+      this.playerHealthText.text = 'player:';
+      this.enemyHealthText.text = 'enemy:';
       this.playerHealthBar.scale.x = 1;
       this.enemyHealthBar.scale.x = 1;
     }
