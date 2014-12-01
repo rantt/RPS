@@ -48,6 +48,9 @@ Game.Play.prototype = {
     this.choices = ['rock', 'paper', 'scissors'];
 
     this.player = this.game.add.sprite(64, 180, 'player');
+    this.player.scale.x = 1.5;
+    this.player.scale.y = 1.5;
+
     this.player.animations.add('idle',[0,1],3,true);
     this.player.choice = '';
     this.player.winCount = 0;
@@ -60,6 +63,8 @@ Game.Play.prototype = {
     this.player.exp = 0;
 
     this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
+    this.enemy.scale.x = 1.5;
+    this.enemy.scale.y = 1.5;
     this.enemy.animations.add('idle',[0,1],3,true);
     this.enemy.choice = '';
     this.enemy.rockCount = 0;
@@ -81,22 +86,31 @@ Game.Play.prototype = {
     this.paperText = this.game.add.bitmapText(32, 536, 'minecraftia', '', 20);
     this.scissorsText = this.game.add.bitmapText(32, 568, 'minecraftia', '', 20);
 
-    this.cLvl = 0;
 
     this.playerHealthText = this.game.add.bitmapText(10, 64,'minecraftia','',20);
     this.playerHealthBar = this.game.add.sprite(100, 64, this.drawRect(260,20,'#33ff00'));
-    this.playerHealthBar.scale.x = 0;
+    this.playerHealthBar.alpha = 0;
 
     this.enemyHealthText = this.game.add.bitmapText(410, 64,'minecraftia','',20);
     this.enemyHealthBar = this.game.add.sprite(495, 64, this.drawRect(260,20,'#33ff00'));
-    this.enemyHealthBar.scale.x = 0;
+    this.enemyHealthBar.alpha = 0;
 
     this.expBar = this.game.add.sprite(0,108,this.drawRect(Game.w,20,'#ffff00'));
     this.expBar.scale.x = 0;
     this.playerExpText = this.game.add.bitmapText(0,108,'minecraftia','',20);
 
     this.playerLvlText = this.game.add.bitmapText(10,36,'minecraftia','',20);
-    
+
+    // default cLvl
+    // this.cLvl = 0;
+
+    //Testing Level4
+    this.cLvl = 4;
+    this.player.level = 5;
+    this.enemy.level = 5;
+    this.player.health = this.player.level*100;
+    this.enemy.health = this.player.level*100;
+
     // // Music
     // this.music = this.game.add.sound('music');
     // this.music.volume = 0.5;
@@ -253,8 +267,8 @@ Game.Play.prototype = {
     if (this.cLvl > 3) {
       this.playerHealthText.text = 'player:';
       this.enemyHealthText.text = 'enemy:';
-      this.playerHealthBar.scale.x = 1;
-      this.enemyHealthBar.scale.x = 1;
+      this.playerHealthBar.alpha = 1;
+      this.enemyHealthBar.alpha = 1;
     }
 
     if (this.player.choice) {
@@ -283,9 +297,23 @@ Game.Play.prototype = {
         if (this.cLvl > 2) {
           this.player.exp += 50;
         }
+        if (this.cLvl > 3) {
+          this.enemy.health -= 200;
+          this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
+          this.spriteHit(this.enemy);
+          // console.log(this.enemy.health);
+          //play enemy hit sound
+        }
       }else {
         this.messages.text = 'YOU LOSE!';
         this.player.lossCount += 1;
+        if (this.cLvl > 3) {
+          this.player.health -= 200;
+          this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
+          this.spriteHit(this.player);
+          //play enemy hit sound
+        }
+
       }
       this.enemy.choice = '';
       this.player.choice = '';
@@ -294,6 +322,8 @@ Game.Play.prototype = {
         if (this.player.exp === (this.player.level * 100)) {
           this.player.level += 1;
           this.player.exp = 0;
+          this.player.health = this.player.level * 100;
+          this.enemy.health = this.player.level * 100;
         }
       }
 
@@ -309,6 +339,18 @@ Game.Play.prototype = {
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
+
+  },
+  spriteHit: function(sprite) {
+    if(this.staggering) {
+      return;
+    }
+    this.staggering = true;
+    var t = this.game.add.tween(sprite).to({alpha: 0.3},100).to({alpha: 1},100).to({alpha: 0.3},100).to({alpha: 1},100);
+    t.start();
+    t.onComplete.add(function() {
+      this.staggering = false;
+    },this);
 
   },
   getReady: function() {
