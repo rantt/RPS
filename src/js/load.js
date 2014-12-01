@@ -54,6 +54,10 @@ Game.Load.prototype = {
     this.game.load.tilemap('bridge','assets/maps/bridge.json',null,Phaser.Tilemap.TILED_JSON);
     this.game.load.spritesheet('town','assets/images/town.png',64,64,36);
 
+    this.game.load.audio('hit', 'assets/audio/Hit_Hurt.wav');
+    this.game.load.audio('tie', 'assets/audio/Hit_tie.wav');
+    this.game.load.audio('die', 'assets/audio/Hit_die.wav');
+
     // Music Track
     // this.game.load.audio('music','soundtrack.mp3');
 

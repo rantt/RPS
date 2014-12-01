@@ -27,6 +27,10 @@ Game.Play.prototype = {
 		this.game.stage.backgroundColor = '#FFF';
     this.game.world.setBounds(0, 0 ,Game.w, Game.h);
 
+    this.hitSnd = this.game.add.sound('hit');
+    this.tieSnd = this.game.add.sound('tie');
+    this.dieSnd = this.game.add.sound('die');
+
     //Map
     this.map = this.game.add.tilemap('bridge');
     this.map.addTilesetImage('town');
@@ -299,8 +303,17 @@ Game.Play.prototype = {
         }
         if (this.cLvl > 3) {
           this.enemy.health -= 200;
-          this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
-          this.spriteHit(this.enemy);
+          if (this.enemy.health <= 0) {
+            this.dieSnd.play();
+            this.enemyHealthBar.scale.x = 0;
+            //play death animation
+            this.enemy.health = this.player.level * 100; //reset enemy
+            this.enemyHealthBar.scale.x = 1; 
+          }else {
+            this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
+            this.hitSnd.play();
+            this.spriteHit(this.enemy);
+          }
           // console.log(this.enemy.health);
           //play enemy hit sound
         }
@@ -309,11 +322,18 @@ Game.Play.prototype = {
         this.player.lossCount += 1;
         if (this.cLvl > 3) {
           this.player.health -= 200;
-          this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
-          this.spriteHit(this.player);
-          //play enemy hit sound
+          if (this.player.health <= 0) {
+            this.dieSnd.play();
+            this.playerHealthBar.scale.x = 0;
+            //play death animation
+            this.player.health = this.player.level * 100; //reset player
+            this.playerHealthBar.scale.x = 1; 
+          }else {
+            this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
+            this.hitSnd.play();
+            this.spriteHit(this.player);
+          }
         }
-
       }
       this.enemy.choice = '';
       this.player.choice = '';
