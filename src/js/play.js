@@ -246,7 +246,7 @@ Game.Play.prototype = {
 
     if (this.cLvl > 2) {
       this.expBar.scale.x = (this.player.exp/(this.player.level*100));
-      this.playerExpText.text = "EXP: "+this.player.exp +"/"+(this.player.level*100); 
+      this.playerExpText.text = 'EXP: '+this.player.exp +'/'+(this.player.level*100); 
       this.playerLvlText.text = 'Lvl: '+this.player.level;
     }
 
