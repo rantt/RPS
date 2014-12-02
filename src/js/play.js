@@ -12,7 +12,6 @@ function rand (min, max) {
 
 // var musicOn = true;
 
-
 var wKey;
 var aKey;
 var sKey;
@@ -28,8 +27,13 @@ Game.Play.prototype = {
     this.game.world.setBounds(0, 0 ,Game.w, Game.h);
 
     this.hitSnd = this.game.add.sound('hit');
+    this.hitSnd.volume = 0.2;
+    this.hitPlayerSnd = this.game.add.sound('hitPlayer');
+    this.hitPlayerSnd.volume = 0.2;
     this.tieSnd = this.game.add.sound('tie');
+    this.tieSnd.volume = 0.2;
     this.dieSnd = this.game.add.sound('die');
+    this.dieSnd.volume = 0.2;
 
     //Map
     this.map = this.game.add.tilemap('bridge');
@@ -52,8 +56,6 @@ Game.Play.prototype = {
     this.choices = ['rock', 'paper', 'scissors'];
 
     this.player = this.game.add.sprite(64, 180, 'player');
-    this.player.scale.x = 1.5;
-    this.player.scale.y = 1.5;
 
     this.player.animations.add('idle',[0,1],3,true);
     this.player.choice = '';
@@ -67,8 +69,6 @@ Game.Play.prototype = {
     this.player.exp = 0;
 
     this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
-    this.enemy.scale.x = 1.5;
-    this.enemy.scale.y = 1.5;
     this.enemy.animations.add('idle',[0,1],3,true);
     this.enemy.choice = '';
     this.enemy.rockCount = 0;
@@ -77,7 +77,8 @@ Game.Play.prototype = {
 
     this.lock = this.game.add.sprite(0, 0, 'lock');
     this.lock.animations.add('unlock',[2,3],2);
-    this.challengeText = this.game.add.bitmapText(45, 8, 'minecraftia', 'Win 3 Times!', 20);
+    this.challengeText = this.game.add.bitmapText(45, 8, 'minecraftia', 'Win a game!', 20);
+    this.challengeText.tint = 0xffff00;
 
     this.messages = this.game.add.bitmapText(Game.w/2, Game.h/2, 'minecraftia', '', 40);
     this.messages.align = 'center';
@@ -89,7 +90,6 @@ Game.Play.prototype = {
     this.rockText = this.game.add.bitmapText(32, 504, 'minecraftia', '', 20);
     this.paperText = this.game.add.bitmapText(32, 536, 'minecraftia', '', 20);
     this.scissorsText = this.game.add.bitmapText(32, 568, 'minecraftia', '', 20);
-
 
     this.playerHealthText = this.game.add.bitmapText(10, 64,'minecraftia','',20);
     this.playerHealthBar = this.game.add.sprite(100, 64, this.drawRect(260,20,'#33ff00'));
@@ -106,19 +106,50 @@ Game.Play.prototype = {
     this.playerLvlText = this.game.add.bitmapText(10,36,'minecraftia','',20);
 
     // default cLvl
-    // this.cLvl = 0;
+    this.cLvl = 0;
 
     //Testing Level4
-    this.cLvl = 4;
-    this.player.level = 5;
-    this.enemy.level = 5;
-    this.player.health = this.player.level*100;
-    this.enemy.health = this.player.level*100;
+    // this.cLvl = 4;
+    // this.player.level = 5;
+    // this.enemy.level = 5;
+    // this.player.health = this.player.level*100;
+    // this.enemy.health = this.player.level*100;
+
+
+    this.player.emitter = this.game.add.emitter(64, 180, 250);
+    this.player.emitter.makeParticles('gibs',[0,1,2,3]);
+    this.player.emitter.minParticleSpeed.setTo(-500, -500);
+    this.player.emitter.maxParticleSpeed.setTo(500, 500);
+
+    this.enemy.emitter = this.game.add.emitter(64, 180, 250);
+    this.enemy.emitter.makeParticles('gibs',[4,5,6,7]);
+    this.enemy.emitter.minParticleSpeed.setTo(-500, -500);
+    this.enemy.emitter.maxParticleSpeed.setTo(500, 500);
+
+    // var rockMedals = this.player.rockCount;
+    this.rockMedals = [];
+    for (var i = 0; i < 10; i++) {
+      this.rockMedals[i] = this.game.add.sprite(225+(i*32),450,'medals',0);
+      this.rockMedals[i].alpha = 0;
+    }
+
+    this.paperMedals = [];
+    for (var j = 0; j < 10; j++) {
+      this.paperMedals[j] = this.game.add.sprite(225+(j*32),490,'medals',1);
+      this.paperMedals[j].alpha = 0;
+    }
+
+    this.scissorsMedals = [];
+    for (var k = 0; k < 10; k++) {
+      this.scissorsMedals[k] = this.game.add.sprite(225+(k*32),530,'medals',2);
+      this.scissorsMedals[k].alpha = 0;
+    }
 
     // // Music
-    // this.music = this.game.add.sound('music');
-    // this.music.volume = 0.5;
+    this.music = this.game.add.sound('music');
+    this.music.volume = 0.1;
     // this.music.play('',0,1,true);
+    this.music.play();
 
     //Setup WASD and extra keys
     wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -181,15 +212,15 @@ Game.Play.prototype = {
     //   this.lock.reset(34,64);
     //   this.lock.frame = 0;
     // }
-    if ((this.player.winCount > 2) && (this.cLvl < 1)) {
+    if ((this.player.winCount > 0) && (this.cLvl < 1)) {
       this.cLvl = 1;
-      this.challengeText.text = 'Win 10 Times';
+      this.challengeText.text = 'Win 5 Times';
       // this.lock.animations.play('unlock',2,false, true);
 
-    }else if ((this.player.winCount > 9) && (this.cLvl < 2)) {
-      this.challengeText.text = 'All Gold Medals for rock, paper OR scissors';
+    }else if ((this.player.winCount > 4) && (this.cLvl < 2)) {
+      this.challengeText.text = '5 Gold Medals for rock, paper OR scissors';
       this.cLvl = 2;
-    }else if (((this.player.rockCount > 30) || (this.player.paperCount > 30) || (this.player.scissorsCount > 30)) && (this.cLvl < 3)){
+    }else if (((this.player.rockCount > 15) || (this.player.paperCount > 15) || (this.player.scissorsCount > 15)) && (this.cLvl < 3)){
       this.challengeText.text = 'Level 5';
       this.cLvl = 3;
     }else if ((this.player.level > 4) && (this.cLvl < 4)) {
@@ -213,51 +244,55 @@ Game.Play.prototype = {
       this.scissorsText.text = 'Scissors #'+this.player.scissorsCount;
     }
     if (this.cLvl > 1) {
-      var rockMedals = this.player.rockCount;
+      var rockCount = this.player.rockCount;
       for (var i = 0; i < 10; i++) {
-        if ((rockMedals - 3) > 0) {
-          rockMedals -= 3;
-          this.game.add.sprite(325+(i*32),450,'medals',9);
-        }else if((rockMedals - 2) > 0) {
-          rockMedals -= 2;
-          this.game.add.sprite(325+(i*32),450,'medals',6);
-        }else if((rockMedals - 1) > 0) {
-          rockMedals -= 1;
-          this.game.add.sprite(325+(i*32),450,'medals',3);
+        this.rockMedals[i].alpha = 1;
+        if ((rockCount - 3) > 0) {
+          rockCount -= 3;
+          this.rockMedals[i].frame = 9;
+        }else if((rockCount - 2) > 0) {
+          rockCount -= 2;
+          this.rockMedals[i].frame = 6;
+        }else if((rockCount - 1) > 0) {
+          rockCount -= 1;
+          this.rockMedals[i].frame = 3;
         }else {
-          this.game.add.sprite(325+(i*32),450,'medals',0);
+          this.rockMedals[i].frame = 0;
         }
       }
-
-      var paperMedals = this.player.paperCount;
+      
+      var paperCount = this.player.paperCount;
       for (var j = 0; j < 10; j++) {
-        if ((paperMedals - 3) > 0) {
-          paperMedals -= 3;
-          this.game.add.sprite(325+(j*32),490,'medals',10);
-        }else if((paperMedals - 2) > 0) {
-          paperMedals -= 2;
-          this.game.add.sprite(325+(j*32),490,'medals',7);
-        }else if((paperMedals - 1) > 0) {
-          paperMedals -= 1;
-          this.game.add.sprite(325+(j*32),490,'medals',4);
+        this.paperMedals[j].alpha = 1;
+        if ((paperCount - 3) > 0) {
+          paperCount -= 3;
+          this.paperMedals[j].frame = 10;
+        }else if((paperCount - 2) > 0) {
+          paperCount -= 2;
+          this.paperMedals[j].frame = 7;
+        }else if((paperCount - 1) > 0) {
+          paperCount -= 1;
+          this.paperMedals[j].frame = 4;
         }else {
-          this.game.add.sprite(325+(j*32),490,'medals',1);
+
+          this.paperMedals[j].frame = 1;
         }
       }
 
-      var scissorsMedals = this.player.scissorsCount;
+      var scissorsCount = this.player.scissorsCount;
       for (var k = 0; k < 10; k++) {
-        if ((scissorsMedals - 3) > 0) {
-          scissorsMedals -= 3;
-          this.game.add.sprite(325+(k*32),530,'medals',11);
-        }else if((scissorsMedals - 2) > 0) {
-          scissorsMedals -= 2;
-          this.game.add.sprite(325+(k*32),530,'medals',8);
-        }else if((scissorsMedals - 1) > 0) {
-          scissorsMedals -= 1;
-          this.game.add.sprite(325+(k*32),530,'medals',5);
+        this.scissorsMedals[k].alpha = 1;
+        if ((scissorsCount - 3) > 0) {
+          scissorsCount -= 3;
+          this.scissorsMedals[k].frame = 11;
+        }else if((scissorsCount - 2) > 0) {
+          scissorsCount -= 2;
+          this.scissorsMedals[k].frame = 8;
+        }else if((scissorsCount - 1) > 0) {
+          scissorsCount -= 1;
+          this.scissorsMedals[k].frame = 5;
         }else {
-          this.game.add.sprite(325+(k*32),530,'medals',2);
+          this.scissorsMedals[k].frame = 2;
         }
       }
     }
@@ -287,6 +322,7 @@ Game.Play.prototype = {
 
       if (this.player.choice === this.enemy.choice) {
         this.messages.text = 'YOU TIE!';
+        this.tieSnd.play();
         this.player.tieCount += 1;
         if (this.cLvl > 2) {
           this.player.exp += 50;
@@ -298,6 +334,9 @@ Game.Play.prototype = {
                 ((this.player.choice === 'scissors') && (this.enemy.choice === 'paper'))) {
         this.messages.text = 'YOU WIN!';
         this.player.winCount += 1;
+            // this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
+            this.hitSnd.play();
+            this.spriteHit(this.enemy);
         if (this.cLvl > 2) {
           this.player.exp += 50;
         }
@@ -306,32 +345,49 @@ Game.Play.prototype = {
           if (this.enemy.health <= 0) {
             this.dieSnd.play();
             this.enemyHealthBar.scale.x = 0;
+            this.enemy.emitter.x = this.enemy.x;
+            this.enemy.emitter.y = this.enemy.y;
+            this.enemy.emitter.start(true, 2000, null, 500);
+            this.enemy.alpha = 0;
+            this.resetSprite(this.enemy);
+            this.player.killCount += 1;
+
             //play death animation
             this.enemy.health = this.player.level * 100; //reset enemy
             this.enemyHealthBar.scale.x = 1; 
           }else {
             this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
-            this.hitSnd.play();
-            this.spriteHit(this.enemy);
+            // this.hitSnd.play();
+            // this.spriteHit(this.enemy);
           }
+
           // console.log(this.enemy.health);
           //play enemy hit sound
         }
       }else {
         this.messages.text = 'YOU LOSE!';
         this.player.lossCount += 1;
+            // this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
+            this.hitPlayerSnd.play();
+            this.spriteHit(this.player);
         if (this.cLvl > 3) {
           this.player.health -= 200;
           if (this.player.health <= 0) {
             this.dieSnd.play();
             this.playerHealthBar.scale.x = 0;
+            this.player.emitter.x = this.player.x;
+            this.player.emitter.y = this.player.y;
+            this.player.emitter.start(true, 2000, null, 500);
+            this.player.alpha = 0;
+            this.resetSprite(this.player);
+
             //play death animation
             this.player.health = this.player.level * 100; //reset player
             this.playerHealthBar.scale.x = 1; 
           }else {
             this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
-            this.hitSnd.play();
-            this.spriteHit(this.player);
+            // this.hitSnd.play();
+            // this.spriteHit(this.player);
           }
         }
       }
@@ -361,6 +417,19 @@ Game.Play.prototype = {
     // muteKey.onDown.add(this.toggleMute, this);
 
   },
+  resetSprite: function(sprite) {
+    if(this.resurrecting) {
+      return;
+    }
+    this.resurrecting = true;
+    var t = this.game.add.tween(sprite).to({alpha: 1},2000);
+    t.start();
+    t.onComplete.add(function() {
+      this.resurrecting = false;
+    },this);
+
+  },
+
   spriteHit: function(sprite) {
     if(this.staggering) {
       return;
