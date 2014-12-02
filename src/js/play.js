@@ -27,13 +27,13 @@ Game.Play.prototype = {
     this.game.world.setBounds(0, 0 ,Game.w, Game.h);
 
     this.hitSnd = this.game.add.sound('hit');
-    this.hitSnd.volume = 0.2;
+    this.hitSnd.volume = 0.5;
     this.hitPlayerSnd = this.game.add.sound('hitPlayer');
-    this.hitPlayerSnd.volume = 0.2;
+    this.hitPlayerSnd.volume = 0.5;
     this.tieSnd = this.game.add.sound('tie');
-    this.tieSnd.volume = 0.2;
+    this.tieSnd.volume = 0.5;
     this.dieSnd = this.game.add.sound('die');
-    this.dieSnd.volume = 0.2;
+    this.dieSnd.volume = 0.5;
 
     //Map
     this.map = this.game.add.tilemap('bridge');
@@ -55,8 +55,8 @@ Game.Play.prototype = {
 
     this.choices = ['rock', 'paper', 'scissors'];
 
-    this.player = this.game.add.sprite(64, 180, 'player');
-
+    this.player = this.game.add.sprite(64, 210, 'player');
+    this.player.anchor.setTo(0.5, 0.5);
     this.player.animations.add('idle',[0,1],3,true);
     this.player.choice = '';
     this.player.winCount = 0;
@@ -67,8 +67,12 @@ Game.Play.prototype = {
     this.player.scissorsCount = 0;
     this.player.level = 1;
     this.player.exp = 0;
+    this.player.killCount = 0;
+    this.player.deathCount = 0;
+    this.player.mastery = 0;
 
-    this.enemy = this.game.add.sprite(Game.w - 128, 180, 'enemy');
+    this.enemy = this.game.add.sprite(Game.w - 128, 210, 'enemy');
+    this.enemy.anchor.setTo(0.5, 0.5);
     this.enemy.animations.add('idle',[0,1],3,true);
     this.enemy.choice = '';
     this.enemy.rockCount = 0;
@@ -84,6 +88,7 @@ Game.Play.prototype = {
     this.messages.align = 'center';
     this.messages.x = this.game.width/2 - this.messages.textWidth / 2;
 
+    //Game win/loss/tie info
     this.winText = this.game.add.bitmapText(32, 408, 'minecraftia', '', 20);
     this.lossText = this.game.add.bitmapText(32, 440, 'minecraftia', '', 20);
     this.tieText = this.game.add.bitmapText(32, 472, 'minecraftia', '', 20);
@@ -91,19 +96,38 @@ Game.Play.prototype = {
     this.paperText = this.game.add.bitmapText(32, 536, 'minecraftia', '', 20);
     this.scissorsText = this.game.add.bitmapText(32, 568, 'minecraftia', '', 20);
 
+    //Player and Enemy Health Bars
     this.playerHealthText = this.game.add.bitmapText(10, 64,'minecraftia','',20);
     this.playerHealthBar = this.game.add.sprite(100, 64, this.drawRect(260,20,'#33ff00'));
     this.playerHealthBar.alpha = 0;
-
+    
     this.enemyHealthText = this.game.add.bitmapText(410, 64,'minecraftia','',20);
     this.enemyHealthBar = this.game.add.sprite(495, 64, this.drawRect(260,20,'#33ff00'));
     this.enemyHealthBar.alpha = 0;
 
+    //Player Experience/Levels
     this.expBar = this.game.add.sprite(0,108,this.drawRect(Game.w,20,'#ffff00'));
     this.expBar.scale.x = 0;
     this.playerExpText = this.game.add.bitmapText(0,108,'minecraftia','',20);
-
     this.playerLvlText = this.game.add.bitmapText(10,36,'minecraftia','',20);
+
+
+    //Player kill/death Count
+    this.playerDeaths = this.game.add.sprite(550,380,'trophies',0);
+    this.playerDeaths.alpha = 0;
+    this.playerDeathsText = this.game.add.bitmapText(620,408,'minecraftia','',40);
+    this.enemyDeaths = this.game.add.sprite(550,450,'trophies',1);
+    this.enemyDeaths.alpha = 0;
+    this.enemyDeathsText = this.game.add.bitmapText(620,478,'minecraftia','',40);
+
+
+    //Trophies
+    this.medalsTrophy = this.game.add.sprite(550,0,'trophies',2);
+    this.medalsTrophy.alpha = 0.2;
+    this.deathTrophy = this.game.add.sprite(620,0,'trophies',3);
+    this.deathTrophy.alpha = 0.2;
+    this.killTrophy = this.game.add.sprite(690,0,'trophies',4);
+    this.killTrophy.alpha = 0.2;
 
     // default cLvl
     this.cLvl = 0;
@@ -145,11 +169,9 @@ Game.Play.prototype = {
       this.scissorsMedals[k].alpha = 0;
     }
 
-    // // Music
+    // Music
     this.music = this.game.add.sound('music');
-    this.music.volume = 0.1;
-    // this.music.play('',0,1,true);
-    this.music.play();
+    this.music.play('',0,0.5,true);
 
     //Setup WASD and extra keys
     wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -165,9 +187,6 @@ Game.Play.prototype = {
     bmd.ctx.rect(0, 0, width, height);
     bmd.ctx.fillStyle = color;
     bmd.ctx.fill();
-    // bmd.ctx.save();
-    // bmd.ctx.restore();
-    // bmd.ctx.closePath();
     return bmd;
   },
   actionOnClick: function(btn) {
@@ -175,17 +194,14 @@ Game.Play.prototype = {
       case 'rock':
         console.log('you picked rock');
         this.player.choice = 'rock';
-        // this.playerChoice = 'rock';
         break;
       case 'paper':
         console.log('you picked paper');
         this.player.choice = 'paper';
-        // this.playerChoice = 'paper';
         break;
       case 'scissors':
         console.log('you picked scissors');
         this.player.choice = 'scissors';
-        // this.playerChoice = 'scissors';
         break;
     }
 
@@ -208,15 +224,9 @@ Game.Play.prototype = {
    
   },
   updateChallenge: function() {
-    // if (this.lock.alive === false) {
-    //   this.lock.reset(34,64);
-    //   this.lock.frame = 0;
-    // }
     if ((this.player.winCount > 0) && (this.cLvl < 1)) {
       this.cLvl = 1;
       this.challengeText.text = 'Win 5 Times';
-      // this.lock.animations.play('unlock',2,false, true);
-
     }else if ((this.player.winCount > 4) && (this.cLvl < 2)) {
       this.challengeText.text = '5 Gold Medals for rock, paper OR scissors';
       this.cLvl = 2;
@@ -226,8 +236,17 @@ Game.Play.prototype = {
     }else if ((this.player.level > 4) && (this.cLvl < 4)) {
       this.challengeText.text = '10 Kills';
       this.cLvl = 4;
+    }else if (this.player.killCount > 9) {
+      this.lock.alpha = 0;
+      this.challengeText.text = 'You are now the Grand Master of RPS!'; 
+      this.twitterButton = this.game.add.button(Game.w/2, Game.h/2-100,'twitter', this.twitter, this);
+      this.twitterButton.anchor.setTo(0.5,0.5);
+      this.twitterButton.fixedToCamera = true;
+
     }
 
+      this.twitterButton = this.game.add.button(550, 570,'twitter', this.twitter, this);
+      this.twitterButton.fixedToCamera = true;
   },
   update: function() {
 
@@ -235,6 +254,7 @@ Game.Play.prototype = {
 
     this.pickYourWeapon(this.player);
 
+    //Start Showing Stats Info
     if (this.cLvl > 0) {
       this.winText.text = 'Wins: '+this.player.winCount;
       this.lossText.text = 'Losses: '+this.player.lossCount;
@@ -243,6 +263,8 @@ Game.Play.prototype = {
       this.paperText.text = 'Paper #'+this.player.paperCount;
       this.scissorsText.text = 'Scissors #'+this.player.scissorsCount;
     }
+
+    //Start Showing Medals
     if (this.cLvl > 1) {
       var rockCount = this.player.rockCount;
       for (var i = 0; i < 10; i++) {
@@ -297,19 +319,48 @@ Game.Play.prototype = {
       }
     }
 
+    //Start Showing XP Bar
     if (this.cLvl > 2) {
       this.expBar.scale.x = (this.player.exp/(this.player.level*100));
       this.playerExpText.text = 'EXP: '+this.player.exp +'/'+(this.player.level*100); 
       this.playerLvlText.text = 'Lvl: '+this.player.level;
     }
 
+    //Start Showing Health Bar
     if (this.cLvl > 3) {
       this.playerHealthText.text = 'player:';
       this.enemyHealthText.text = 'enemy:';
       this.playerHealthBar.alpha = 1;
       this.enemyHealthBar.alpha = 1;
+
+      this.playerDeaths.alpha = 1;
+      this.enemyDeaths.alpha = 1;
+      this.playerDeathsText.text = this.player.deathCount;
+      this.enemyDeathsText.text = this.player.killCount;
     }
 
+    //Start Showing Trophies
+    if (this.player.deathCount > 9) {
+      this.deathTrophy.alpha = 1;
+    }
+    if (this.player.killCount > 9) {
+      this.killTrophy.alpha = 1;
+    }
+    if ((this.player.rockCount > 30) && (this.player.paperCount > 30) && (this.player.scissorsCount > 30)) {
+      this.medalsTrophy.alpha = 1;
+    }
+
+
+    switch (this.player.mastery) {
+      case 1:
+        this.player.tint = 0xffff00;
+        break;
+      case 2:
+        this.player.tint = 0x00ffff;
+        break;
+    } 
+
+    //Find out who won
     if (this.player.choice) {
       this.enemy.choice = this.choices[rand(0,2)];      
       this.pickYourWeapon(this.enemy);
@@ -322,8 +373,10 @@ Game.Play.prototype = {
 
       if (this.player.choice === this.enemy.choice) {
         this.messages.text = 'YOU TIE!';
+        this.messages.tint = 0xffffff;
         this.tieSnd.play();
         this.player.tieCount += 1;
+
         if (this.cLvl > 2) {
           this.player.exp += 50;
         }
@@ -332,11 +385,13 @@ Game.Play.prototype = {
                 ((this.player.choice === 'paper') && (this.enemy.choice === 'rock')) || 
                 ((this.player.choice === 'rock') && (this.enemy.choice === 'scissors')) || 
                 ((this.player.choice === 'scissors') && (this.enemy.choice === 'paper'))) {
+
         this.messages.text = 'YOU WIN!';
+        this.messages.tint = 0xffff00;
         this.player.winCount += 1;
-            // this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
-            this.hitSnd.play();
-            this.spriteHit(this.enemy);
+        this.hitSnd.play();
+        this.spriteHit(this.enemy);
+
         if (this.cLvl > 2) {
           this.player.exp += 50;
         }
@@ -344,50 +399,47 @@ Game.Play.prototype = {
           this.enemy.health -= 200;
           if (this.enemy.health <= 0) {
             this.dieSnd.play();
+
+            //Blow Up and reset Enemy
             this.enemyHealthBar.scale.x = 0;
             this.enemy.emitter.x = this.enemy.x;
             this.enemy.emitter.y = this.enemy.y;
             this.enemy.emitter.start(true, 2000, null, 500);
             this.enemy.alpha = 0;
             this.resetSprite(this.enemy);
-            this.player.killCount += 1;
 
-            //play death animation
             this.enemy.health = this.player.level * 100; //reset enemy
             this.enemyHealthBar.scale.x = 1; 
+            this.player.killCount += 1;
           }else {
             this.enemyHealthBar.scale.x = this.enemy.health/(this.player.level * 100);
-            // this.hitSnd.play();
-            // this.spriteHit(this.enemy);
           }
 
-          // console.log(this.enemy.health);
-          //play enemy hit sound
         }
       }else {
         this.messages.text = 'YOU LOSE!';
+        this.messages.tint = 0xff0000;
         this.player.lossCount += 1;
-            // this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
-            this.hitPlayerSnd.play();
-            this.spriteHit(this.player);
+        this.hitPlayerSnd.play();
+        this.spriteHit(this.player);
+        
         if (this.cLvl > 3) {
           this.player.health -= 200;
           if (this.player.health <= 0) {
             this.dieSnd.play();
+
+            //Blowup and Reset Player
             this.playerHealthBar.scale.x = 0;
             this.player.emitter.x = this.player.x;
             this.player.emitter.y = this.player.y;
             this.player.emitter.start(true, 2000, null, 500);
             this.player.alpha = 0;
             this.resetSprite(this.player);
-
-            //play death animation
+            this.player.deathCount += 1;
             this.player.health = this.player.level * 100; //reset player
             this.playerHealthBar.scale.x = 1; 
           }else {
             this.playerHealthBar.scale.x = this.player.health/(this.player.level * 100);
-            // this.hitSnd.play();
-            // this.spriteHit(this.player);
           }
         }
       }
@@ -413,10 +465,11 @@ Game.Play.prototype = {
       }
     }
 
-    // // Toggle Music
-    // muteKey.onDown.add(this.toggleMute, this);
-
   },
+  twitter: function() {
+    window.open('http://twitter.com/share?text=I+am+an+RPS+Master!+See+if+you+are+too!++at&via=rantt_&url=http://www.divideby5.com/games/RPS/', '_blank');
+  },
+
   resetSprite: function(sprite) {
     if(this.resurrecting) {
       return;

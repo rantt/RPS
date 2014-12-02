@@ -45,15 +45,16 @@ Game.Load.prototype = {
   	this.game.load.setPreloadSprite(preloading);
     this.game.load.spritesheet('rps','assets/images/RPS.png',60,60,12);
     this.game.load.spritesheet('player','assets/images/RPS_player.png',99,99,9);
+    // this.game.load.spritesheet('player','assets/images/RPS_playerx.png',99,99,9);
     this.game.load.spritesheet('enemy','assets/images/RPS_enemy.png',99,99,9);
     this.game.load.spritesheet('lock', 'assets/images/RPS_lock.png',32,32,6);
     this.game.load.spritesheet('medals', 'assets/images/RPS_medals.png',30,30,12);
 
-    this.game.load.image('bar','assets/images/bar.png');
-
     this.game.load.tilemap('bridge','assets/maps/bridge.json',null,Phaser.Tilemap.TILED_JSON);
     this.game.load.spritesheet('town','assets/images/town.png',64,64,36);
     this.game.load.spritesheet('gibs','assets/images/RPS_particles.png',4,4,8);
+    this.game.load.spritesheet('trophies','assets/images/RPS_trophies.png',64,64,25);
+    this.game.load.image('twitter','assets/images/twitter.png');
 
     this.game.load.audio('hit', 'assets/audio/Hit_Hurt.wav');
     this.game.load.audio('hitPlayer', 'assets/audio/Hit_player.wav');
