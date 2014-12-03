@@ -1,4 +1,5 @@
 /*global Game*/
+
 Game.Menu = function(game){
   this.game = game;
 };

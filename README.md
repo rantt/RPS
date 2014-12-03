@@ -2,6 +2,8 @@
 
 ### Game 6
 
+![RPS](screenshots/screenshot.png)
+
 This game is for the onegameamonth.com (#1GAM) challenge.  The theme is luck so I made
 a game revolving Rock/Paper/Scissors...with wizards.
 
