@@ -58,7 +58,7 @@ Game.Load.prototype = {
     this.game.load.audio('hitPlayer', 'assets/audio/Hit_player.wav');
     this.game.load.audio('tie', 'assets/audio/Hit_tie.wav');
     this.game.load.audio('die', 'assets/audio/Hit_die.wav');
-    this.game.load.audio('music', 'assets/audio/hold_the_line.ogg');
+    this.game.load.audio('music', 'assets/audio/hold_the_line.mp3');
 
   },
   create: function() {
