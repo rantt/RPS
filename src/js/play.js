@@ -10,8 +10,6 @@ function rand (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// var musicOn = true;
-
 var wKey;
 var aKey;
 var sKey;
@@ -69,7 +67,6 @@ Game.Play.prototype = {
     this.player.exp = 0;
     this.player.killCount = 0;
     this.player.deathCount = 0;
-    this.player.mastery = 0;
 
     this.enemy = this.game.add.sprite(Game.w - 128, 210, 'enemy');
     this.enemy.anchor.setTo(0.5, 0.5);
@@ -239,14 +236,10 @@ Game.Play.prototype = {
     }else if (this.player.killCount > 9) {
       this.lock.alpha = 0;
       this.challengeText.text = 'You are now the Grand Master of RPS!'; 
-      this.twitterButton = this.game.add.button(Game.w/2, Game.h/2-100,'twitter', this.twitter, this);
-      this.twitterButton.anchor.setTo(0.5,0.5);
-      this.twitterButton.fixedToCamera = true;
-
-    }
-
       this.twitterButton = this.game.add.button(550, 570,'twitter', this.twitter, this);
       this.twitterButton.fixedToCamera = true;
+    }
+
   },
   update: function() {
 
@@ -350,15 +343,6 @@ Game.Play.prototype = {
       this.medalsTrophy.alpha = 1;
     }
 
-
-    switch (this.player.mastery) {
-      case 1:
-        this.player.tint = 0xffff00;
-        break;
-      case 2:
-        this.player.tint = 0x00ffff;
-        break;
-    } 
 
     //Find out who won
     if (this.player.choice) {
@@ -527,18 +511,5 @@ Game.Play.prototype = {
       }
     },this);
   },    
-  // toggleMute: function() {
-  //   if (musicOn == true) {
-  //     musicOn = false;
-  //     this.music.volume = 0;
-  //   }else {
-  //     musicOn = true;
-  //     this.music.volume = 0.5;
-  //   }
-  // },
-  // render: function() {
-  //   game.debug.text('Health: ' + tri.health, 32, 96);
-  // }
-
 };
 
