@@ -10,11 +10,6 @@ function rand (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-var wKey;
-var aKey;
-var sKey;
-var dKey;
-
 Game.Play = function(game) {
   this.game = game;
 };
@@ -169,13 +164,6 @@ Game.Play.prototype = {
     // Music
     this.music = this.game.add.sound('music');
     this.music.play('',0,0.5,true);
-
-    //Setup WASD and extra keys
-    wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-    aKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
-    sKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
-    dKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
-    // muteKey = game.input.keyboard.addKey(Phaser.Keyboard.M);
 
   },
   drawRect: function(width, height,color) {
