@@ -115,11 +115,11 @@ Game.Play.prototype = {
 
     //Trophies
     this.medalsTrophy = this.game.add.sprite(550,0,'trophies',2);
-    this.medalsTrophy.alpha = 0.2;
+    this.medalsTrophy.alpha = 0;
     this.deathTrophy = this.game.add.sprite(620,0,'trophies',3);
-    this.deathTrophy.alpha = 0.2;
+    this.deathTrophy.alpha = 0;
     this.killTrophy = this.game.add.sprite(690,0,'trophies',4);
-    this.killTrophy.alpha = 0.2;
+    this.killTrophy.alpha = 0;
 
     // default cLvl
     this.cLvl = 0;
