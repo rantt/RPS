@@ -219,9 +219,9 @@ Game.Play.prototype = {
       this.challengeText.text = 'Level 5';
       this.cLvl = 3;
     }else if ((this.player.level > 4) && (this.cLvl < 4)) {
-      this.challengeText.text = '10 Kills';
+      this.challengeText.text = '5 Kills';
       this.cLvl = 4;
-    }else if (this.player.killCount > 9) {
+    }else if (this.player.killCount > 4) {
       this.lock.alpha = 0;
       this.challengeText.text = 'You are now the Grand Master of RPS!'; 
       this.twitterButton = this.game.add.button(550, 570,'twitter', this.twitter, this);
@@ -321,10 +321,10 @@ Game.Play.prototype = {
     }
 
     //Start Showing Trophies
-    if (this.player.deathCount > 9) {
+    if (this.player.deathCount > 4) {
       this.deathTrophy.alpha = 1;
     }
-    if (this.player.killCount > 9) {
+    if (this.player.killCount > 4) {
       this.killTrophy.alpha = 1;
     }
     if ((this.player.rockCount > 30) && (this.player.paperCount > 30) && (this.player.scissorsCount > 30)) {
