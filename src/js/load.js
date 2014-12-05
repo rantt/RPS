@@ -8,9 +8,6 @@ var Game = {
   h: tileSize*dRows,
 };
 
-// var w = 800;
-// var h = 600;
-
 Game.Boot = function(game) {
   this.game = game;
 };
